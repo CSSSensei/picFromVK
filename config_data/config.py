@@ -29,4 +29,4 @@ def load_config(path: str | None = None) -> Config:
 
 config: Config = load_config()
 
-bot = Bot(token=config.tg_bot.token)
+bot = Bot(token=config.tg_bot.token, parse_mode="HTML")

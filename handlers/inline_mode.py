@@ -1,5 +1,5 @@
 from aiogram import Router, types
-from aiogram.types import InputTextMessageContent, InlineQueryResultPhoto
+from aiogram.types import InlineQueryResultPhoto
 from lexicon.lexicon import LEXICON_RU
 import hashlib
 from handlers import vk_parse
@@ -22,6 +22,3 @@ async def inline_get_photo(query: types.InlineQuery):
     photos = [InlineQueryResultPhoto(id=result_id, thumbnail_url=photo[0], photo_url=photo[1])]
 
     await query.answer(photos, cache_time=1, is_personal=False)
-
-
-
