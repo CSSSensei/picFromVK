@@ -23,15 +23,16 @@ async def inline_get_photo(query: types.InlineQuery):
             return
         usersDB.add_user_query(query.from_user.id, query.from_user.username, query.query)
         user = usersDB.get_user(query.from_user.id, query.from_user.username)
+        caption = transform_string(wall_post.caption,
+                                   user.public_preview,
+                                   wall_post.public_name,
+                                   wall_post.photo_info.owner_id,
+                                   wall_post.wall_post_link)
         if len(wall_post.photos) == 0:
-            photos = [InlineQueryResultArticle(id=result_id, description=transform_string(wall_post.caption,
-                                                                                          user.public_preview,
-                                                                                          wall_post.public_name,
-                                                                                          wall_post.photo_info.owner_id,
-                                                                                          wall_post.wall_post_link),
+            photos = [InlineQueryResultArticle(id=result_id, description=wall_post.caption[:90],
                                                title=wall_post.public_name,
                                                thumbnail_url=wall_post.public_photo,
-                                               input_message_content=InputTextMessageContent(message_text=wall_post.caption,
+                                               input_message_content=InputTextMessageContent(message_text=caption,
                                                                                              parse_mode='HTML'))]
             await query.answer(photos, cache_time=1, is_personal=False)
         else:
@@ -39,11 +40,7 @@ async def inline_get_photo(query: types.InlineQuery):
                 mes = await bot.send_photo(chat_id=972753303, photo=wall_post.photos[0], disable_notification=True)
                 await mes.delete()
             photos = [InlineQueryResultPhoto(id=result_id, thumbnail_url=wall_post.photos[0], photo_url=wall_post.photos[0],
-                                             caption=transform_string(wall_post.caption,
-                                                                      user.public_preview,
-                                                                      wall_post.public_name,
-                                                                      wall_post.photo_info.owner_id,
-                                                                      wall_post.wall_post_link))]
+                                             caption=caption)]
 
             await query.answer(photos, cache_time=1, is_personal=False)
     else:
