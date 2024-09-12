@@ -9,6 +9,8 @@ load_dotenv(find_dotenv())
 @dataclass
 class TgBot:
     token: str = os.getenv('BOT_TOKEN')
+    MAX_SYMBOLS: int = 800
+    settings_name = 'Настройки'
 
 
 @dataclass
@@ -23,7 +25,7 @@ class Config:
     vk_parse: VkParse
 
 
-def load_config(path: str | None = None) -> Config:
+def load_config() -> Config:
     return Config(tg_bot=TgBot(), vk_parse=VkParse())
 
 

@@ -25,7 +25,7 @@
 import asyncio
 from aiogram import Dispatcher
 from config_data.config import bot
-from handlers import admin_handlers, user_handlers, inline_mode
+from handlers import admin_handlers, user_handlers, inline_mode, callback
 
 
 async def main():
@@ -34,6 +34,7 @@ async def main():
     dp.include_router(admin_handlers.router)
     dp.include_router(user_handlers.router)
     dp.include_router(inline_mode.router)
+    dp.include_router(callback.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     print('Пошла возня')

@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from dataclasses import dataclass
+from typing import Union, List
 
 photos_db = f'{os.path.dirname(__file__)}/photos.db'
 conn_loc = sqlite3.connect(photos_db)
@@ -23,6 +24,23 @@ conn_loc.close()
 class Photo:
     owner_id: int
     photo_id: int
+
+
+@dataclass
+class WallPost:
+    photos: List
+    caption: Union[None, str]
+    public_name: str
+    public_photo: str
+    photo_info: Union[Photo, None]
+    wall_post_link: Union[str, None] = None
+
+
+@dataclass
+class PhotoPost:
+    photo: str
+    thumbnail: str
+    photo_info: Union[Photo, None]
 
 
 def check_photo(photo_info: Photo):
