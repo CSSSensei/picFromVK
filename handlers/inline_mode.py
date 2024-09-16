@@ -17,7 +17,7 @@ router = Router()
 async def inline_get_photo(query: types.InlineQuery):
     text = query.query
     result_id: str = hashlib.md5(text.encode()).hexdigest()
-    if '=wall' in text and '=photo' not in text:
+    if 'wall' in text and 'photo' not in text:
         wall_post: WallPost = vk_get_wall_post(text)
         if wall_post is None:
             return

@@ -57,7 +57,7 @@ async def settings_message(message: Message, edit: Optional[bool] = False, user_
 @router.message()
 async def user_send_photo(message: Message):
     if message.text:
-        if '=wall' in message.text and '=photo' not in message.text:
+        if 'wall' in message.text and 'photo' not in message.text:
             wall_post: WallPost = vk_get_wall_post(message.text)
             if wall_post is None:
                 await message.answer(LEXICON_RU['no_photo'], reply_markup=main_keyboard.basic_keyboard)
