@@ -21,7 +21,7 @@ def transform_string(input_string: Union[str, None], input_public_name=False, pu
 
     if input_public_name and public_name and owner_id != 0:
         link = f'https://vk.com/club{abs(owner_id)}' + (f'?w=wall{wall_post_link}' if wall_post_link else '')
-        transformed_string = f'<b><a href="{link}">{public_name}</a></b>:\n{transformed_string}'
+        transformed_string = f'<b><a href="{link}">{public_name}</a></b>\n{transformed_string}'
     if len(transformed_string) > config.tg_bot.MAX_SYMBOLS:
         transformed_string = transformed_string[:config.tg_bot.MAX_SYMBOLS - 4] + '...'
     return transformed_string
