@@ -1,13 +1,17 @@
+import os
+
 from aiogram import Router, types
-from aiogram.types import InlineQueryResultPhoto, InlineQueryResultArticle, InputTextMessageContent
+from aiogram.types import InlineQueryResultPhoto, InlineQueryResultArticle, InputTextMessageContent, InlineQueryResultAudio, FSInputFile
 
 from DB.vk_photo import WallPost, PhotoPost
 from filters.format_string import transform_string
 from handlers.vk_parse import vk_get_wall_post
 from lexicon.lexicon import LEXICON_RU
 import hashlib
+import re
 from handlers import vk_parse
-from config_data.config import bot
+from config_data.config import bot, config
+import musicDownloader.music_download as yandex_api
 from DB import vk_photo, usersDB
 
 router = Router()
@@ -16,7 +20,18 @@ router = Router()
 @router.inline_query()
 async def inline_get_photo(query: types.InlineQuery):
     text = query.query
+    pattern = re.compile(config.music_parse.song_id_pattern)
     result_id: str = hashlib.md5(text.encode()).hexdigest()
+    if pattern.search(text):
+        path = await yandex_api.download_song(text)
+        if not path:
+            return
+        mes = await bot.send_audio(chat_id=972753303, audio=FSInputFile(path=path[0]), disable_notification=True)
+        await mes.delete()
+        os.remove(path[0])
+        audio = [InlineQueryResultAudio(id=result_id, title=path[1], audio_url=mes.audio.file_id)]
+        await query.answer(audio, cache_time=1, is_personal=False)
+        return
     if 'wall' in text and 'photo' not in text:
         wall_post: WallPost = vk_get_wall_post(text)
         if wall_post is None:

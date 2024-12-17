@@ -1,12 +1,15 @@
+import os
 from typing import Optional
 
 from aiogram import Router, F
 import random
+import re
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message, InputMediaPhoto
+from aiogram.types import Message, InputMediaPhoto, FSInputFile
 
 from DB.vk_photo import WallPost
 from DB import usersDB
+import musicDownloader.music_download as yandex_api
 from filters.format_string import transform_string
 from handlers import vk_parse
 from handlers.vk_parse import vk_get_wall_post, config
@@ -52,6 +55,16 @@ async def settings_message(message: Message, edit: Optional[bool] = False, user_
         await message.edit_text(txt, reply_markup=main_keyboard.get_keyboard(user.public_preview))
     else:
         await message.answer(txt, reply_markup=main_keyboard.get_keyboard(user.public_preview))
+
+
+@router.message(F.text.regexp(re.compile(config.music_parse.song_id_pattern)))
+async def user_send_music(message: Message):
+    path = await yandex_api.download_song(message.text)
+    if not path:
+        await message.answer(LEXICON_RU['no_music'], reply_markup=main_keyboard.basic_keyboard)
+        return
+    await message.answer_audio(audio=FSInputFile(path=path[0]))
+    os.remove(path[0])
 
 
 @router.message()

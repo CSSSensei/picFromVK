@@ -20,13 +20,21 @@ class VkParse:
 
 
 @dataclass
+class MusicParse:
+    token: str = os.getenv('YANDEX_TOKEN')
+    song_id_pattern: str = r'https://music\.yandex\.ru/album/(\d+)/track/(\d+)'
+    temp_path: str = 'temp'
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     vk_parse: VkParse
+    music_parse: MusicParse
 
 
 def load_config() -> Config:
-    return Config(tg_bot=TgBot(), vk_parse=VkParse())
+    return Config(tg_bot=TgBot(), vk_parse=VkParse(), music_parse=MusicParse())
 
 
 config: Config = load_config()
