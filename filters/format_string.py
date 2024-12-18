@@ -30,7 +30,7 @@ def transform_string(input_string: Union[str, None], input_public_name=False, pu
 def format_string(text: str):
     if not text:
         return '⬛️'
-    return text.replace('<', '«').replace('>', '»')
+    return text.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")
 
 
 def find_first_number(input_string):
