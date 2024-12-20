@@ -6,7 +6,9 @@ import random
 import re
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, InputMediaPhoto, FSInputFile
+from aiogram.utils.chat_action import ChatActionSender
 
+from config_data.config import bot
 from DB.vk_photo import WallPost
 from DB import usersDB
 import musicDownloader.music_download as yandex_api
@@ -59,12 +61,20 @@ async def settings_message(message: Message, edit: Optional[bool] = False, user_
 
 @router.message(F.text.regexp(re.compile(config.music_parse.song_id_pattern)))
 async def user_send_music(message: Message):
-    path = await yandex_api.download_song(message.text)
-    if not path:
-        await message.answer(LEXICON_RU['no_music'], reply_markup=main_keyboard.basic_keyboard)
-        return
-    await message.answer_audio(audio=FSInputFile(path=path[0]))
-    os.remove(path[0])
+    async with ChatActionSender(bot=bot, chat_id=message.chat.id, action='upload_document'):
+        song_info: usersDB.Song = await yandex_api.get_song_path(message.text)
+        if not song_info:
+            await message.answer(LEXICON_RU['no_music'], reply_markup=main_keyboard.basic_keyboard)
+            return
+        if song_info.unique_id:
+            await message.answer_audio(audio=song_info.unique_id)
+            usersDB.add_music_query(message.from_user.id, message.from_user.username, song_info.unique_id)
+            return
+        mes = await message.answer_audio(audio=FSInputFile(path=song_info.path))
+        song_info.unique_id = mes.audio.file_id
+        usersDB.add_song(song_info)
+        usersDB.add_music_query(message.from_user.id, message.from_user.username, song_info.unique_id)
+        os.remove(song_info.path)
 
 
 @router.message()

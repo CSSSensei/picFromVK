@@ -30,6 +30,8 @@ async def cut_message_distributor(callback: CallbackQuery, callback_data: CutMes
         await main_keyboard.get_users_by_page(callback.from_user.id, page, callback.message.message_id)
     elif action == 2:
         await main_keyboard.user_query_by_page(callback.from_user.id, user_id, page, callback.message.message_id)
+    elif action == 3:
+        await main_keyboard.user_music_query_by_page(callback.from_user.id, user_id, page, callback.message.message_id)
     elif action == -1:
         await callback.answer()
 

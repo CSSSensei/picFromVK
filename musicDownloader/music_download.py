@@ -14,6 +14,7 @@ from yandex_music.exceptions import BadRequestError
 from mutagen.mp3 import MP3
 from mutagen.id3 import (ID3, TIT2, TPE1, TPE2, TALB, TYER, TDRL, APIC)
 from config_data.config import config
+import DB.usersDB as songDB
 
 YANDEX_TOKEN = config.music_parse.token
 YANDEX_SONG_ID_PATTERN = config.music_parse.song_id_pattern
@@ -85,7 +86,7 @@ async def __decoration_song(album: Album, song: Track, song_path: str):
     audio.save()
 
 
-async def __download_song(album_id: str, song_id: str) -> Optional[Tuple[str, str, str]]:
+async def __download_song(album_id: str, song_id: str) -> Optional[songDB.Song]:
     try:
         album = (await __client.albums(album_id))[0]
         song = (await __client.tracks(song_id))[0]
@@ -97,18 +98,35 @@ async def __download_song(album_id: str, song_id: str) -> Optional[Tuple[str, st
         return None
 
     await __decoration_song(album, song, save_path)
-    return save_path, song.title, ", ".join([a.name for a in song.artists])
+    return songDB.Song(None, None, title=song.title, artists=", ".join([a.name for a in song.artists]), yandex_song_id=song_id, album_id=album_id, path=save_path)
 
 
-async def download_song(link) -> Optional[Tuple[str, str, str]]:
+def get_song_info(link: str) -> Optional[Tuple[str, str]]:
     song = search(YANDEX_SONG_ID_PATTERN, link)
-
     if song:
-        song_id = song.group(2)
         album_id = song.group(1)
-        song_info = await __download_song(album_id=album_id, song_id=song_id)
-        return song_info
+        song_id = song.group(2)
+        return album_id, song_id
     return None
 
+
+async def get_song_path(link: str) -> Optional[songDB.Song]:
+    song_info = get_song_info(link)
+    if song_info:
+        song: songDB.Song = songDB.get_song_info(song_info[0], song_info[1])
+        if song:
+            return song
+        downloaded_song = await __download_song(song_info[0], song_info[1])
+        if downloaded_song:
+            downloaded_song.url = link.strip()
+            return downloaded_song
+    return None
+
+
+async def search_artist_id(query: str):
+    search_result = await __client.search(query)
+    print(*search_result.tracks.results, sep='\n')
+
+
 if __name__ == '__main__':
-    asyncio.run(download_song('https://music.yandex.ru/album/10946852/track/66897041?utm_source=desktop&utm_medium=copy_link'))
+    asyncio.run(search_artist_id('НТР'))

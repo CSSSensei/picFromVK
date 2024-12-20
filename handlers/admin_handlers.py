@@ -22,7 +22,8 @@ async def cmd_getcoms(message: Message):
     await message.answer('/help\n'
                          '/get_users\n'
                          '/query <i>(int)</i> — последние <i>n</i> среди всех запросов\n'
-                         '/user_query <i>(user_id)</i> — запросы пользователя <i>(user_id)</i>\n'
+                         '/user_query <i>(user_id)</i> — VK запросы пользователя <i>(user_id)</i>\n'
+                         '/user_music_query <i>(user_id)</i> — я.музыка запросы пользователя <i>(user_id)</i>\n'
                          '/about')
 
 
@@ -54,3 +55,9 @@ async def cmd_query(message: Message):
 async def cmd_user_query(message: Message):
     user_id_to_find = format_string.find_first_number(message.text)
     await main_keyboard.user_query_by_page(message.from_user.id, user_id_to_find)
+
+
+@router.message(Command(commands='user_music_query'))  # /user_music_query
+async def cmd_user_music_query(message: Message):
+    user_id_to_find = format_string.find_first_number(message.text)
+    await main_keyboard.user_music_query_by_page(message.from_user.id, user_id_to_find)

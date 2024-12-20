@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from aiogram import Router, types
 from aiogram.types import InlineQueryResultPhoto, InlineQueryResultArticle, InputTextMessageContent, InlineQueryResultAudio, FSInputFile
@@ -23,15 +24,24 @@ async def inline_get_photo(query: types.InlineQuery):
     pattern = re.compile(config.music_parse.song_id_pattern)
     result_id: str = hashlib.md5(text.encode()).hexdigest()
     if pattern.search(text):
-        path = await yandex_api.download_song(text)
-        if not path:
+        song: Optional[usersDB.Song] = await yandex_api.get_song_path(text)
+        if not song:
             return
-        mes = await bot.send_audio(chat_id=972753303, audio=FSInputFile(path=path[0]), disable_notification=True)
-        await mes.delete()
-        os.remove(path[0])
-        audio = [InlineQueryResultAudio(id=result_id, title=path[1], audio_url=mes.audio.file_id)]
-        await query.answer(audio, cache_time=1, is_personal=False)
-        return
+        if song.unique_id:
+            audio = [InlineQueryResultAudio(id=result_id, title=song.title, audio_url=song.unique_id)]
+            await query.answer(audio, cache_time=1, is_personal=False)
+            usersDB.add_music_query(query.from_user.id, query.from_user.username, song.unique_id)
+            return
+        if song.path:
+            mes = await bot.send_audio(chat_id=972753303, audio=FSInputFile(path=song.path), disable_notification=True)
+            await mes.delete()
+            song.unique_id = mes.audio.file_id
+            usersDB.add_song(song)
+            usersDB.add_music_query(query.from_user.id, query.from_user.username, song.unique_id)
+            os.remove(song.path)
+            audio = [InlineQueryResultAudio(id=result_id, title=song.path, audio_url=mes.audio.file_id)]
+            await query.answer(audio, cache_time=1, is_personal=False)
+            return
     if 'wall' in text and 'photo' not in text:
         wall_post: WallPost = vk_get_wall_post(text)
         if wall_post is None:
