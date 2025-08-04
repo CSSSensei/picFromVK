@@ -22,7 +22,7 @@ class VkParse:
 @dataclass
 class MusicParse:
     token: str = os.getenv('YANDEX_TOKEN')
-    song_id_pattern: str = r'https://music\.yandex\.ru/album/(\d+)/track/(\d+)'
+    song_id_pattern: str = r'https?://music\.yandex\.(?:ru|com)/album/(\d+)/track/(\d+)'
     temp_path: str = f'{os.path.dirname(__file__)}/../temp'
 
 
