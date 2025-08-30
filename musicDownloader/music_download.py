@@ -6,7 +6,7 @@ import os
 
 from re import search
 from datetime import datetime
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Optional
 
 from yandex_music import ClientAsync, Artist, Album, Track
 from yandex_music.exceptions import BadRequestError
@@ -31,7 +31,15 @@ def __format_date(date_str: str):
 
 
 def __make_feats_artists_title(artists: List[Artist]):
-    return 'feat.' + ', '.join([artist.name for artist in artists[1:]])
+    if artists[0].decomposed is None:
+        return 'feat.' + ', '.join([artist.name for artist in artists[1:]])
+    feat_str = ''
+    for artist in artists[0].decomposed:
+        if isinstance(artist, str):
+            feat_str += artist
+        else:
+            feat_str += artist['name']
+    return feat_str
 
 
 async def __download_img(album_id: str, song_id: str, img_link: str) -> str:
