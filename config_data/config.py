@@ -2,6 +2,7 @@ from dotenv import load_dotenv, find_dotenv
 from dataclasses import dataclass
 import os
 from aiogram import Bot
+from aiogram.client.default import DefaultBotProperties
 
 load_dotenv(find_dotenv())
 
@@ -39,4 +40,4 @@ def load_config() -> Config:
 
 config: Config = load_config()
 
-bot = Bot(token=config.tg_bot.token, parse_mode="HTML")
+bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode='HTML'))
