@@ -38,7 +38,7 @@ def _extract_wall_id(text: str) -> Union[str, None]:
 
 
 def _fetch_wall_post(wall_id: str) -> Dict[str, Any]:
-    response = requests.get('https://api.vk.com/method/wall.getById',
+    response = requests.get('https://api.vk.ru/method/wall.getById',
                             params={'access_token': config.vk_parse.token,
                                     'v': config.vk_parse.version,
                                     'posts': wall_id})
@@ -96,7 +96,7 @@ def _get_photo_json(url):
         return None
     photo_id = match.group(0)
 
-    response = requests.get('https://api.vk.com/method/photos.getById',
+    response = requests.get('https://api.vk.ru/method/photos.getById',
                             params={'access_token': config.vk_parse.token,
                                     'v': config.vk_parse.version,
                                     'photos': photo_id}
@@ -117,7 +117,7 @@ def _get_photo_json(url):
 #         return False,
 #     domain = match.group(0)
 #
-#     response = requests.get('https://api.vk.com/method/wall.get',
+#     response = requests.get('https://api.vk.ru/method/wall.get',
 #                             params={'access_token': config.vk_parse.token,
 #                                     'v': config.vk_parse.version,
 #                                     'domain': domain,
@@ -130,7 +130,7 @@ def _get_photo_json(url):
 
 
 def _api_group_name(domain: int) -> Tuple[str, str]:
-    response = requests.get('https://api.vk.com/method/groups.getById',
+    response = requests.get('https://api.vk.ru/method/groups.getById',
                             params={'access_token': config.vk_parse.token,
                                     'v': config.vk_parse.version,
                                     'group_id': domain}
